@@ -1,0 +1,5 @@
+# SFTP get *.png graphs
+get -r data-acquired/png-graphs
+
+# SFTP get raw samples
+get -r data-acquired/raw-samples
