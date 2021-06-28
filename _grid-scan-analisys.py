@@ -7,8 +7,8 @@ with os.scandir(path='.') as directoryScan:
             if entry.name.endswith('.csv') and entry.is_file():
                 print(entry.name)
 
-scanDirections = input('Enter number of scanned directions: ')
-scanAngles = input('Enter number of scanned angles: ')
+scanDirections = int(input('Enter number of scanned directions: '))
+scanAngles = int(input('Enter number of scanned angles: '))
 
 FFTpeaks = np.ndarray((scanAngles, scanDirections))
 
@@ -44,7 +44,7 @@ while anotherAngle == True:
         FFT_dBV = 20*np.log10(FFT_mV/1000)
         freqAxis = np.fft.rfftfreq(FFT_FREQ_BINS) # freqBins/2+1
         freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
-        FFTpeaks.append(freqAxis_Hz[FFT_dBV.argmax()])
+        np.append(FFTpeaks, freqAxis_Hz[FFT_dBV.argmax()])
         print("{0:.0f} Hz".format(FFTpeaks[currentCycle]))
         currentCycle += 1
 
