@@ -34,6 +34,9 @@ with os.scandir(path='.') as directoryScan:
 
 tiltAngles = np.asarray(tiltAngles)
 directions = np.asarray(directions)
+directions_DEG = np.zeros(len(directions))
+for index in range(len(directions)):
+    directions_DEG[index] = 15 - ((directions[index] - 23500) / 1000) * 30
 antennaHeights = np.asarray(antennaHeights)
 
 maxSwaths = np.array(2 * antennaHeights[:]/ np.tan(np.deg2rad(tiltAngles[:])) * np.tan(MAX_SCAN_ANGLE))
@@ -57,7 +60,7 @@ tiltAngleIndex = 0
 IFI = False
 IFQ = False
 
-TARGET_FREQUENCY = 472 # Hz
+TARGET_FREQUENCY = 34 / 2 * 28 # Hz
 ARGMAX_RANGE = 100 # bins
 argmax_startBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
 argmax_endBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
@@ -86,14 +89,15 @@ for filename in filenames:
             freqAxis = np.fft.fftfreq(FFT_FREQ_BINS) # freqBins+1
             freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
 #             Plot FFT
-            plt.plot(np.fft.fftshift(freqAxis_Hz), np.fft.fftshift(FFT_dBV))
-            plt.ylabel('Spectrum magnitude (dBV)')
-            plt.xlabel('Frequency (Hz)')
-            plt.grid(True)
-            plt.show()
+#             plt.plot(np.fft.fftshift(freqAxis_Hz), np.fft.fftshift(FFT_dBV))
+#             plt.ylabel('Spectrum magnitude (dBV)')
+#             plt.xlabel('Frequency (Hz)')
+#             plt.grid(True)
+#             plt.show()
             # FFTpeaks update
             FFTpeaks[directionIndex, tiltAngleIndex] = np.amax(FFT_dBV[argmax_startBin:argmax_endBin])
             print('{0:.1f}'.format(FFTpeaks[directionIndex, tiltAngleIndex]) + ' dBV', end = ', ')
+            print(filename)
             IFI = False
             IFQ = False
             directionIndex += 1
@@ -102,6 +106,31 @@ for filename in filenames:
                 tiltAngleIndex += 1
             directionIndex = 0
 print('')
-print('FFT peaks in dBV: ')
-print(np.around(np.transpose(FFTpeaks), decimals = 1))
-# plane2D = np.ndarray((2000,2000)) # X: -1m, +1m; Y: 0, +2m
+
+# Plot FFT peaks
+FFTpeaks_rotated = np.rot90(FFTpeaks, k=3) # 3 rotation 90° counter-clockwise
+fig, ax = plt.subplots()
+im = ax.imshow(FFTpeaks_rotated)
+ax.set_xlabel('Beam direction [DEG]')
+ax.set_ylabel('Tilt angle of the radar [DEG]')
+
+# We want to show all ticks...
+ax.set_xticks(np.arange(len(directions_DEG)))
+ax.set_yticks(np.arange(len(tiltAngles)))
+# ... and label them with the respective list entries
+ax.set_xticklabels(np.flip(directions_DEG))
+ax.set_yticklabels(tiltAngles)
+
+# Rotate the tick labels and set their alignment.
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+# Loop over data dimensions and create text annotations.
+for i in range(len(tiltAngles)):
+    for j in range(len(directions_DEG)):
+        text = ax.text(j, i, np.around(FFTpeaks_rotated[i, j],decimals=1),
+                       ha="center", va="center", color="w")
+
+ax.set_title("Magnitude of received signal @ target frequency [dBV]")
+fig.tight_layout()
+plt.show()
