@@ -39,10 +39,20 @@ for index in range(len(directions)):
     directions_DEG[index] = 15 - ((directions[index] - 23500) / 1000) * 30
 antennaHeights = np.asarray(antennaHeights)
 
-maxSwaths = np.array(2 * antennaHeights[:]/ np.tan(np.deg2rad(tiltAngles[:])) * np.tan(MAX_SCAN_ANGLE))
+maxSwaths = np.array(2 * antennaHeights[:] / np.tan(np.deg2rad(tiltAngles[:])) * np.tan(MAX_SCAN_ANGLE))
 swathsStep = np.array(maxSwaths[:] / (directions.size - 1))
 
-print('Grid made of ' + str(len(directions)) + 'x' + str(len(tiltAngles)) + ' points (directions x angles).')
+TARGET_POSITION = np.array([0, 1.25]) # m,m [horiz., vert.]
+
+print('Grid made of ' + str(len(directions)) + 'x' + str(len(tiltAngles)) + ' points (directions x angles):')
+grid_horizontal = np.zeros((len(tiltAngles),len(directions_DEG)))
+grid_vertical = np.zeros((len(tiltAngles),len(directions_DEG)))
+
+for column in range(len(directions_DEG)):
+    for row in range(len(tiltAngles)):
+        grid_horizontal[row, column] = antennaHeights[row] / np.tan(np.deg2rad(tiltAngles[row]))
+        grid_vertical[row, column] = - (maxSwaths[row] / 2) + column * swathsStep[row]
+        
 print('Directions (TX frequencies): ' + str(directions))
 print('Tilt angles: ' + str(tiltAngles))
 print('Swaths: ' + str(np.around(maxSwaths, decimals = 2)))
@@ -60,7 +70,7 @@ tiltAngleIndex = 0
 IFI = False
 IFQ = False
 
-TARGET_FREQUENCY = 34 / 2 * 28 # Hz
+TARGET_FREQUENCY = 34.4 / 2 * 28 # Hz
 ARGMAX_RANGE = 100 # bins
 argmax_startBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
 argmax_endBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
@@ -107,30 +117,40 @@ for filename in filenames:
             directionIndex = 0
 print('')
 
+# Plot grid
+figure, (axis1, axis2) = plt.subplots(1,2)
+figure.suptitle('Grid scan analysis')
+for row in range(len(tiltAngles)):
+    for column in range(len(directions_DEG)):
+        axis1.plot(grid_vertical[row,column], grid_horizontal[row,column],'bo')
+axis1.plot(TARGET_POSITION[0], TARGET_POSITION[1],'go', markersize = 20)
+axis1.set_title('Acquisition points and target position')
+axis1.set_ylabel('Distance from radar [m]')
+axis1.set_xlabel('Swath position [m]')
+
 # Plot FFT peaks
 FFTpeaks_rotated = np.rot90(FFTpeaks, k=3) # 3 rotation 90° counter-clockwise
-fig, ax = plt.subplots()
-im = ax.imshow(FFTpeaks_rotated)
-ax.set_xlabel('Beam direction [DEG]')
-ax.set_ylabel('Tilt angle of the radar [DEG]')
+im = axis2.imshow(FFTpeaks_rotated)
+axis2.set_xlabel('Beam direction [DEG]')
+axis2.set_ylabel('Tilt angle of the radar [DEG]')
 
 # We want to show all ticks...
-ax.set_xticks(np.arange(len(directions_DEG)))
-ax.set_yticks(np.arange(len(tiltAngles)))
+axis2.set_xticks(np.arange(len(directions_DEG)))
+axis2.set_yticks(np.arange(len(tiltAngles)))
 # ... and label them with the respective list entries
-ax.set_xticklabels(np.flip(directions_DEG))
-ax.set_yticklabels(tiltAngles)
+axis2.set_xticklabels(np.flip(directions_DEG))
+axis2.set_yticklabels(tiltAngles)
 
 # Rotate the tick labels and set their alignment.
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+plt.setp(axis2.get_xticklabels(), rotation=45, ha="right",
          rotation_mode="anchor")
 
 # Loop over data dimensions and create text annotations.
 for i in range(len(tiltAngles)):
     for j in range(len(directions_DEG)):
-        text = ax.text(j, i, np.around(FFTpeaks_rotated[i, j],decimals=1),
+        text = axis2.text(j, i, np.around(FFTpeaks_rotated[i, j],decimals=1),
                        ha="center", va="center", color="w")
 
-ax.set_title("Magnitude of received signal @ target frequency [dBV]")
-fig.tight_layout()
+axis2.set_title("Magnitude of received signal @ target frequency [dBV]")
+figure.tight_layout()
 plt.show()
