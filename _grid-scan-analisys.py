@@ -71,7 +71,7 @@ IFI = False
 IFQ = False
 
 TARGET_FREQUENCY = 34.4 / 2 * 28 # Hz
-ARGMAX_RANGE = 100 # bins
+ARGMAX_RANGE = 5000 # bins
 argmax_startBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
 argmax_endBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
 
