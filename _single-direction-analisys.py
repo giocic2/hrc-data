@@ -22,7 +22,7 @@ plt.grid(True)
 plt.show()
 
 FFT_FREQ_BINS = 2**20
-SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
+SAMPLING_FREQUENCY = 1e6 # According to "hrc-ps.py" script
 print('FFT resolution: ' + str(SAMPLING_FREQUENCY/FFT_FREQ_BINS) + ' Hz')
 
 # FFT computation
