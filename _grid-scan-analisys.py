@@ -8,8 +8,12 @@ HYPOTHESIS:
 - Scan angle between +-15 DEG
 - Scan angle linearly varying with TX frequency
 """
-
+FFT_FREQ_BINS = 2**15
+SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 MAX_SCAN_ANGLE = np.deg2rad(15)
+TARGET_FREQUENCY = 5.7 / 2 * 28 # Hz
+ARGMAX_RANGE = 10 # bins
+TARGET_POSITION = np.array([0, 1.60]) # m,m [horiz., vert.]
 
 tiltAngles = []
 directions = []
@@ -18,19 +22,19 @@ filenames = []
 swathsStep = []
 
 print('List of *.csv files in the current directory: ')
-with os.scandir(path='.') as directoryScan:
-    for entry in directoryScan:
-        if entry.name.endswith('.csv') and entry.is_file():
-            filenames.append(entry.name) # Store filenames in list
-            print(entry.name)
-            angle_substring = re.search('__(.+?)deg__', entry.name)
-            if angle_substring and (float(angle_substring.group(1)) not in tiltAngles):
-                tiltAngles.append(float(angle_substring.group(1))) # Store tilt angles in list
-                antennaHeight_substring = re.search('deg__(.+?)m__', entry.name)
-                antennaHeights.append(float(antennaHeight_substring.group(1))) # Store antenna height
-            direction_substring = re.search('m__(.+?)MHz__', entry.name)
-            if direction_substring and (int(direction_substring.group(1)) not in directions):
-                directions.append(int(direction_substring.group(1))) # Store TX frequencies in list
+directoryList = sorted(os.listdir(path='.'))
+for entry in directoryList:
+    if entry.endswith('.csv'):
+        filenames.append(entry) # Store filenames in list
+        print(entry)
+        angle_substring = re.search('__(.+?)deg__', entry)
+        if angle_substring and (float(angle_substring.group(1)) not in tiltAngles):
+            tiltAngles.append(float(angle_substring.group(1))) # Store tilt angles in list
+            antennaHeight_substring = re.search('deg__(.+?)m__', entry)
+            antennaHeights.append(float(antennaHeight_substring.group(1))) # Store antenna height
+        direction_substring = re.search('m__(.+?)MHz__', entry)
+        if direction_substring and (int(direction_substring.group(1)) not in directions):
+            directions.append(int(direction_substring.group(1))) # Store TX frequencies in list
 
 tiltAngles = np.asarray(tiltAngles)
 directions = np.asarray(directions)
@@ -41,8 +45,6 @@ antennaHeights = np.asarray(antennaHeights)
 
 maxSwaths = np.array(2 * antennaHeights[:] / np.tan(np.deg2rad(tiltAngles[:])) * np.tan(MAX_SCAN_ANGLE))
 swathsStep = np.array(maxSwaths[:] / (directions.size - 1))
-
-TARGET_POSITION = np.array([0, 1.25]) # m,m [horiz., vert.]
 
 print('Grid made of ' + str(len(directions)) + 'x' + str(len(tiltAngles)) + ' points (directions x angles):')
 grid_horizontal = np.zeros((len(tiltAngles),len(directions_DEG)))
@@ -60,8 +62,6 @@ print('Swaths step: ' + str(np.around(swathsStep, decimals = 2)))
 
 FFTpeaks = np.ndarray((len(directions), len(tiltAngles)))
 
-FFT_FREQ_BINS = 2**20
-SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 print('FFT resolution: ' + str(SAMPLING_FREQUENCY/FFT_FREQ_BINS) + ' Hz')
 
 directionIndex = 0
@@ -70,8 +70,8 @@ tiltAngleIndex = 0
 IFI = False
 IFQ = False
 
-TARGET_FREQUENCY = 34.4 / 2 * 28 # Hz
-ARGMAX_RANGE = 5000 # bins
+TARGET_FREQUENCY = 5.7 / 2 * 28 # Hz
+ARGMAX_RANGE = 10 # bins
 argmax_startBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
 argmax_endBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
 
