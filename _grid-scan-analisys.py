@@ -11,9 +11,9 @@ HYPOTHESIS:
 FFT_FREQ_BINS = 2**15
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 MAX_SCAN_ANGLE = np.deg2rad(15)
-TARGET_FREQUENCY = 5.7 / 2 * 28 # Hz
-ARGMAX_RANGE = 10 # bins
-TARGET_POSITION = np.array([0, 1.60]) # m,m [horiz., vert.]
+TARGET_FREQUENCY = 340 # Hz
+ARGMAX_RANGE = 20 # bins
+TARGET_POSITION = np.array([0, 1.50]) # m,m [horiz., vert.]
 
 tiltAngles = []
 directions = []
