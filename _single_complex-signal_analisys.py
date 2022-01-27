@@ -2,6 +2,7 @@ import easygui
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
+from scipy.fft import fftshift
 
 # ANALYSIS SETTINGS
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
@@ -66,9 +67,9 @@ plt.grid(True)
 plt.show()
 
 # Spectrogram computation
-f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, nperseg = 2**10, nfft = 2**11, scaling = 'spectrum', return_onesided=False)
-plt.pcolormesh(t, f, Sxx, shading='gouraud')
+f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, noverlap=128, nperseg = 1024, nfft = 2**14, scaling = 'spectrum', return_onesided=False)
+plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
-##plt.axis([0, 2, 0, 1000])
+plt.axis([0, 1, -1000, 1000])
 plt.show()
