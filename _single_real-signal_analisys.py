@@ -26,6 +26,7 @@ voltageAxis_mV = rawSamples[:,0]
 timeAxis_s = rawSamples[:,1]
 totalSamples = timeAxis_s.size
 
+# Time-domain plot
 plt.plot(timeAxis_s, voltageAxis_mV)
 plt.ylabel('Voltage (mV)')
 plt.xlabel('Time (s)')
