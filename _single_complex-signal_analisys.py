@@ -8,15 +8,9 @@ from scipy.fft import fftshift
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
-<<<<<<< HEAD
-FREQUENCY_MIN = -50_000
-FREQUENCY_MAX = 50_000
-BANDWIDTH_THRESHOLD = 6 # dB
-=======
 FREQUENCY_MIN = -50_000 # Hz
 FREQUENCY_MAX = 50_000 # Hz
 BANDWIDTH_THRESHOLD = 6
->>>>>>> f1165249c5f510be64dd268b5b4f748946aba0db
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -72,28 +66,16 @@ start_detected = False
 startBand = 0
 stopBand = 0
 for element in FFT_norm_dB_smooth:
-<<<<<<< HEAD
     if element >= (FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD):
         if start_detected == False:
             startBand = max(freqAxis_Hz[freqIndex],FREQUENCY_MIN)
             start_detected = True
         stopIndex = max(stopIndex,freqIndex)
-=======
-    if element >= (FFT_norm_dB_smooth - BANDWIDTH_THRESHOLD):
-        if start_detected == False:
-            startBand = max(freqAxis_Hz[freqIndex], FREQUENCY_MIN)
-            start_detected = True
-        stopIndex = max(stopIndex, freqIndex)
->>>>>>> f1165249c5f510be64dd268b5b4f748946aba0db
     freqIndex += 1
 stopBand = freqAxis_Hz[stopIndex]
 
 print('Detected Doppler frequency: {:.1f}'.format(peakFreq) + ' Hz')
-<<<<<<< HEAD
-print('Amplitude of this FFT peak: {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
-=======
 print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
->>>>>>> f1165249c5f510be64dd268b5b4f748946aba0db
 print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
 print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
 print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
