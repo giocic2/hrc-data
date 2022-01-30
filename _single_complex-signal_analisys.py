@@ -65,14 +65,21 @@ stopIndex = 0
 start_detected = False
 startBand = 0
 stopBand = 0
-for element in FFT_norm_dB_smooth:
-    if element >= (FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD):
-        if start_detected == False:
-            startBand = max(freqAxis_Hz[freqIndex],FREQUENCY_MIN)
-            start_detected = True
-        stopIndex = max(stopIndex,freqIndex)
-    freqIndex += 1
-stopBand = freqAxis_Hz[stopIndex]
+centroidDetected = False
+while centroidDetected == False:
+    for element in FFT_norm_dB_smooth:
+        if element >= (FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD):
+            if start_detected == False:
+                startBand = max(freqAxis_Hz[freqIndex],FREQUENCY_MIN)
+                start_detected = True
+            stopIndex = max(stopIndex,freqIndex)
+            stopBand = freqAxis_Hz[stopIndex]
+        else:
+            start_detected = False
+        freqIndex += 1
+        if startBand < peakFreq and stopBand > peakFreq:
+            centroidDetected = True
+            break
 
 print('Detected Doppler frequency: {:.1f}'.format(peakFreq) + ' Hz')
 print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
