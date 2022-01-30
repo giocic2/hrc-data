@@ -59,7 +59,7 @@ FFT_norm_dB_smooth = 20*np.log10(FFT_norm_smooth)
 # Doppler centroid bandwidth
 FFT_norm_dB_max = np.amax(FFT_norm_dB)
 FFT_norm_dB_smooth_max = np.amax(FFT_norm_dB_smooth)
-peakFreq = freqAxis_Hz[FFT_norm_dB.argmax()]
+peakFreq = freqAxis_Hz[FFT_norm_dB.argmax()] # If two identical maxima, only the first occurrence is shown (negative frequency)
 freqIndex = 0
 stopIndex = 0
 start_detected = False
