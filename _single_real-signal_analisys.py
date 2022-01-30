@@ -7,6 +7,8 @@ from scipy import signal
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
+FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
+BANDWIDTH_THRESHOLD = 6 # dB
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -41,7 +43,6 @@ FFT_dBV = 20*np.log10(FFT_mV/1000)
 freqAxis = np.fft.rfftfreq(freqBins_FFT ) # freqBins/2+1
 freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
 peakFreq = freqAxis_Hz[FFT_mV.argmax()]
-
 # Plot FFT
 plt.plot(freqAxis_Hz, FFT_dBV)
 plt.ylabel('Spectrum magnitude (dBV)')
@@ -54,9 +55,37 @@ FFT_norm = FFT_mV / FFT_max
 FFT_norm_dB = 20*np.log10(FFT_norm)
 FFT_norm_smooth = np.convolve(FFT_norm, np.ones(smoothingBins), 'same') / smoothingBins
 FFT_norm_dB_smooth = 20*np.log10(FFT_norm_smooth)
+# Doppler centroid bandwidth
+FFT_norm_dB_max = np.amax(FFT_norm_dB)
+FFT_norm_dB_smooth_max = np.amax(FFT_norm_dB_smooth)
+peakFreq = freqAxis_Hz[FFT_norm_dB.argmax()] # If two identical maxima, only the first occurrence is shown (negative frequency)
+freqIndex = 0
+stopIndex = 0
+start_detected = False
+startBand = 0
+stopBand = 0
+centroidDetected = False
+while centroidDetected == False:
+    for element in FFT_norm_dB_smooth:
+        if element >= (FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD):
+            if start_detected == False:
+                startBand = max(freqAxis_Hz[freqIndex],FREQUENCY_MIN)
+                start_detected = True
+            stopIndex = max(stopIndex,freqIndex)
+            stopBand = freqAxis_Hz[stopIndex]
+        else:
+            start_detected = False
+        freqIndex += 1
+        if startBand < peakFreq and stopBand > peakFreq:
+            centroidDetected = True
+            break
 
 print('Detected Doppler frequency: {:.1f}'.format(peakFreq) + ' Hz')
 print('Amplitude of this FFT peak: {:.1f}'.format(20*np.log10(FFT_max/1000)) + ' dBV')
+print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
+print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
+print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
+print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
 
 # Plot FFT: normalized and smoothed
 plt.plot(freqAxis_Hz, FFT_norm_dB)
