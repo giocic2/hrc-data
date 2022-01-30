@@ -8,8 +8,7 @@ from scipy.fft import fftshift
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
-FREQUENCY_MIN = -50_000 # Hz
-FREQUENCY_MAX = 50_000 # Hz
+FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 BANDWIDTH_THRESHOLD = 6 # dB
 
 # FFT bins and resolution
