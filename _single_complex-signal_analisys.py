@@ -28,7 +28,7 @@ while filename_IFQ == None:
 print(filename_IFQ)
 
 rawSamples_IFI = np.genfromtxt(filename_IFI, delimiter = ',')
-rawSamples_IFQ = np.genfromtxt(filename_IFI, delimiter = ',')
+rawSamples_IFQ = np.genfromtxt(filename_IFQ, delimiter = ',')
 
 voltageAxis_IFI_mV = rawSamples_IFI[:,0]
 voltageAxis_IFQ_mV = rawSamples_IFQ[:,0]
