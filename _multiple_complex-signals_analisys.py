@@ -6,7 +6,7 @@ from scipy.fft import fftshift
 
 # ANALYSIS SETTINGS
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
-FFT_RESOL = 10 # Hz
+FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
 FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 BANDWIDTH_THRESHOLD = 6 # dB
@@ -41,7 +41,8 @@ while not done:
 
     # FFT computation
     complexSignal_mV = np.add(np.asarray(voltageAxis_IFI_mV), 1j*np.asarray(voltageAxis_IFQ_mV))
-    FFT = np.fft.fftshift(np.fft.fft(complexSignal_mV, n = freqBins_FFT)) # FFT of complex signal
+    complexSignal_mV_win = complexSignal_mV * np.hamming(totalSamples)
+    FFT = np.fft.fftshift(np.fft.fft(complexSignal_mV_win, n = freqBins_FFT)) # FFT of complex signal
     FFT_mV = np.abs(1/(totalSamples)*FFT) # FFT magnitude
     FFT_max = np.amax(FFT_mV)
     FFT_dBV = 20*np.log10(FFT_mV/1000)
@@ -86,8 +87,8 @@ while not done:
     print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
 
     # Plot FFT: normalized and smoothed
-    plt.plot(freqAxis_Hz, FFT_norm_dB)
-    # plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
+    # plt.plot(freqAxis_Hz, FFT_norm_dB)
+    plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
     plt.ylabel('Spectrum magnitude (dB)')
     plt.xlabel('Frequency (Hz)')
     plt.grid(True)

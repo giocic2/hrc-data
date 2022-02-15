@@ -36,7 +36,8 @@ plt.grid(True)
 plt.show()
 
 # FFT computation
-FFT = np.fft.rfft(voltageAxis_mV, n = freqBins_FFT ) # FFT of real signal
+voltageAxis_mV_win = voltageAxis_mV * np.hamming(totalSamples)
+FFT = np.fft.rfft(voltageAxis_mV_win, n = freqBins_FFT ) # FFT of real signal
 FFT_mV = np.abs(2/(totalSamples)*FFT) # FFT magnitude
 FFT_max = np.amax(FFT_mV)
 FFT_dBV = 20*np.log10(FFT_mV/1000)

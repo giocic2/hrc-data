@@ -37,7 +37,8 @@ totalSamples = timeAxis_s.size
 
 # FFT computation
 complexSignal_mV = np.add(np.asarray(voltageAxis_IFI_mV), 1j*np.asarray(voltageAxis_IFQ_mV))
-FFT = np.fft.fftshift(np.fft.fft(complexSignal_mV, n = freqBins_FFT)) # FFT of complex signal
+complexSignal_mV_win = complexSignal_mV * np.hamming(totalSamples)
+FFT = np.fft.fftshift(np.fft.fft(complexSignal_mV_win, n = freqBins_FFT)) # FFT of complex signal
 FFT_mV = np.abs(1/(totalSamples)*FFT) # FFT magnitude
 FFT_max = np.amax(FFT_mV)
 FFT_dBV = 20*np.log10(FFT_mV/1000)
