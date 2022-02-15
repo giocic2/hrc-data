@@ -14,7 +14,7 @@ plt.plot(freq_fan, freq_IF, marker='^', markeredgecolor='g', markerfacecolor='no
 plt.yscale("linear")
 plt.xscale("linear")
 plt.ylabel("IF peak frequency (Hz)", fontsize=18)
-plt.xlabel("VCO frequency (GHz)", fontsize=18)
+plt.xlabel("rotation frequency of the fan (Hz)", fontsize=18)
 plt.yticks(fontsize=16)
 plt.xticks(ticks=np.linspace(start=6, stop=18, num=int((18-6)/2+1), endpoint=True), fontsize=16)
 plt.grid(b=True, which='major', linewidth=1)

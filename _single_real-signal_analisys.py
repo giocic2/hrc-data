@@ -76,7 +76,7 @@ while centroidDetected == False:
         else:
             start_detected = False
         freqIndex += 1
-        if startBand < peakFreq and stopBand > peakFreq:
+        if startBand <= peakFreq and stopBand >= peakFreq:
             centroidDetected = True
             break
 
