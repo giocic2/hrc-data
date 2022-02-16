@@ -35,6 +35,15 @@ voltageAxis_IFQ_mV = rawSamples_IFQ[:,0]
 timeAxis_s = rawSamples_IFI[:,1]
 totalSamples = timeAxis_s.size
 
+# Time-domain plot
+plt.plot(timeAxis_s, voltageAxis_IFI_mV)
+plt.plot(timeAxis_s, voltageAxis_IFQ_mV)
+plt.ylabel('voltage (mV)')
+plt.xlabel('time (s)')
+plt.grid(True)
+plt.legend(['IFI','IFQ'])
+plt.show()
+
 # FFT computation
 complexSignal_mV = np.add(np.asarray(voltageAxis_IFI_mV), 1j*np.asarray(voltageAxis_IFQ_mV))
 complexSignal_mV_win = complexSignal_mV * np.hamming(totalSamples)
