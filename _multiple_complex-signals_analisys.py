@@ -96,5 +96,5 @@ while not done:
     if index == ITERATIONS:
         done = True
     index += 1
-
+plt.legend(['1','2','3'])
 plt.show()
