@@ -80,7 +80,7 @@ while centroidDetected == False:
             break
 
 print('Detected Doppler frequency: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
-print('Amplitude of this FFT peak: {:.1f}'.format(20*np.log10(FFT_max/1000)) + ' dBV')
+print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
 print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
 print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
 print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
