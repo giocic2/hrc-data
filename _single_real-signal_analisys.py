@@ -74,14 +74,12 @@ while centroidDetected == False:
                 start_detected = True
             stopIndex = max(stopIndex,freqIndex)
             stopBand = freqAxis_Hz[stopIndex]
-        else:
-            start_detected = False
         freqIndex += 1
-        if startBand <= peakFreq and stopBand >= peakFreq:
+        if freqIndex >= (freqBins_FFT/2+1):
             centroidDetected = True
             break
 
-print('Detected Doppler frequency: {:.1f}'.format(peakFreq) + ' Hz')
+print('Detected Doppler frequency: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
 print('Amplitude of this FFT peak: {:.1f}'.format(20*np.log10(FFT_max/1000)) + ' dBV')
 print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
 print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
