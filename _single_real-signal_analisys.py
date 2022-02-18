@@ -59,6 +59,7 @@ peakFreq = freqAxis_Hz[FFT_mV.argmax()]
 plt.plot(freqAxis_Hz, FFT_dBV)
 plt.ylabel('Spectrum magnitude (dBV)')
 plt.xlabel('Frequency (Hz)')
+plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
 plt.grid(True)
 plt.show()
 
