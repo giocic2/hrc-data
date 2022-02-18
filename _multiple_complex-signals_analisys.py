@@ -85,8 +85,9 @@ while not done:
     print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
 
     # Plot FFT: normalized and smoothed
+    plt.plot(freqAxis_Hz, FFT_dBV)
     # plt.plot(freqAxis_Hz, FFT_norm_dB)
-    plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
+    # plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
     plt.ylabel('Spectrum magnitude (dB)')
     plt.xlabel('Frequency (Hz)')
     plt.grid(True)
