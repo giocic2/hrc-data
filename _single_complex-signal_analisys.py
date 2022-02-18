@@ -8,8 +8,10 @@ from scipy.fft import fftshift
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
-FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 BANDWIDTH_THRESHOLD = 6 # dB
+ZERO_FORCING = True # Enable forcing FFT to zero, between FREQUENCY_MIN and FREQUENCY_MAX
+FREQUENCY_MIN = -1_000 # Hz
+FREQUENCY_MAX = 1_000 # Hz
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -17,6 +19,12 @@ print('FFT resolution: ' + str(SAMPLING_FREQUENCY / freqBins_FFT) + ' Hz')
 print('FFT bins: ' + str(freqBins_FFT))
 smoothingBins = int(round(SMOOTHING_WINDOW / (SAMPLING_FREQUENCY / freqBins_FFT)))
 print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
+minBin = int(freqBins_FFT/2 + np.round(FREQUENCY_MIN / (SAMPLING_FREQUENCY/freqBins_FFT)))
+FREQUENCY_MIN = -SAMPLING_FREQUENCY/2 + minBin * SAMPLING_FREQUENCY/freqBins_FFT
+print("Minimum frequency of interest: " + str(FREQUENCY_MIN) + ' Hz')
+maxBin = int(freqBins_FFT/2 + np.round(FREQUENCY_MAX / (SAMPLING_FREQUENCY/freqBins_FFT)))
+FREQUENCY_MAX = -SAMPLING_FREQUENCY/2 + maxBin * SAMPLING_FREQUENCY/freqBins_FFT
+print("Maximum frequency of interest: " + str(FREQUENCY_MAX) + ' Hz')
 
 filename_IFI = None
 filename_IFQ = None
@@ -49,6 +57,9 @@ complexSignal_mV = np.add(np.asarray(voltageAxis_IFI_mV), 1j*np.asarray(voltageA
 complexSignal_mV_win = complexSignal_mV * np.hamming(totalSamples)
 FFT = np.fft.fftshift(np.fft.fft(complexSignal_mV_win, n = freqBins_FFT)) # FFT of complex signal
 FFT_mV = np.abs(1/(totalSamples)*FFT) # FFT magnitude
+if ZERO_FORCING == True:
+    FFT_mV[0:minBin] = 0
+    FFT_mV[maxBin:-1] = 0
 FFT_max = np.amax(FFT_mV)
 FFT_dBV = 20*np.log10(FFT_mV/1000)
 freqAxis = np.fft.fftshift(np.fft.fftfreq(freqBins_FFT)) # freqBins+1
@@ -57,6 +68,8 @@ freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
 plt.plot(freqAxis_Hz, FFT_dBV)
 plt.ylabel('Spectrum magnitude (dBV)')
 plt.xlabel('Frequency (Hz)')
+if ZERO_FORCING == True:
+    plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
 plt.grid(True)
 plt.show()
 
@@ -100,6 +113,8 @@ plt.plot(freqAxis_Hz, FFT_norm_dB)
 plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
 plt.ylabel('Spectrum magnitude (dB)')
 plt.xlabel('Frequency (Hz)')
+if ZERO_FORCING == True:
+    plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
 plt.grid(True)
 plt.show()
 
