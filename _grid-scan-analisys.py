@@ -8,12 +8,22 @@ HYPOTHESIS:
 - Scan angle between +-15 DEG
 - Scan angle linearly varying with TX frequency
 """
-FFT_FREQ_BINS = 2**15
+# ANALYSIS SETTINGS
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
+FFT_RESOL = 1 # Hz
+SMOOTHING_WINDOW = 10 # Hz
+FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 MAX_SCAN_ANGLE = np.deg2rad(15)
-TARGET_FREQUENCY = 340 # Hz
-ARGMAX_RANGE = 20 # bins
+TARGET_FREQUENCY = 300 # Hz
+ARGMAX_RANGE =  100 # bins
 TARGET_POSITION = np.array([0, 1.50]) # m,m [horiz., vert.]
+
+# FFT bins and resolution
+freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
+print('FFT resolution: ' + str(SAMPLING_FREQUENCY / freqBins_FFT) + ' Hz')
+print('FFT bins: ' + str(freqBins_FFT))
+smoothingBins = int(round(SMOOTHING_WINDOW / (SAMPLING_FREQUENCY / freqBins_FFT)))
+print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
 
 tiltAngles = []
 directions = []
@@ -62,7 +72,7 @@ print('Swaths step: ' + str(np.around(swathsStep, decimals = 2)))
 
 FFTpeaks = np.ndarray((len(directions), len(tiltAngles)))
 
-print('FFT resolution: ' + str(SAMPLING_FREQUENCY/FFT_FREQ_BINS) + ' Hz')
+print('FFT resolution: ' + str(SAMPLING_FREQUENCY/freqBins_FFT) + ' Hz')
 
 directionIndex = 0
 tiltAngleIndex = 0
@@ -72,8 +82,8 @@ IFQ = False
 
 TARGET_FREQUENCY = 5.7 / 2 * 28 # Hz
 ARGMAX_RANGE = 10 # bins
-argmax_startBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
-argmax_endBin = int(round((FFT_FREQ_BINS / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
+argmax_startBin = int(round((freqBins_FFT / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
+argmax_endBin = int(round((freqBins_FFT / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
 
 for filename in filenames:
     if (str(directions[directionIndex]) in filename) and (str(tiltAngles[tiltAngleIndex]) in filename):
@@ -93,10 +103,11 @@ for filename in filenames:
             timeAxis_s = rawSamples[:,1]
             totalSamples = timeAxis_s.size
             # FFT computation
-            FFT = np.fft.fft(complexSignal_mV, n = FFT_FREQ_BINS) # FFT of complex signal
+            FFT = np.fft.fft(complexSignal_mV, n = freqBins_FFT) # FFT of complex signal
             FFT_mV = np.abs(1/(totalSamples)*FFT) # FFT magnitude
             FFT_dBV = 20*np.log10(FFT_mV/1000)
-            freqAxis = np.fft.fftfreq(FFT_FREQ_BINS) # freqBins+1
+            FFT_dBV_smooth = np.convolve(FFT_dBV, np.ones(smoothingBins), 'same') / smoothingBins
+            freqAxis = np.fft.fftfreq(freqBins_FFT) # freqBins+1
             freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
 #             Plot FFT
 #             plt.plot(np.fft.fftshift(freqAxis_Hz), np.fft.fftshift(FFT_dBV))
@@ -105,7 +116,7 @@ for filename in filenames:
 #             plt.grid(True)
 #             plt.show()
             # FFTpeaks update
-            FFTpeaks[directionIndex, tiltAngleIndex] = np.amax(FFT_dBV[argmax_startBin:argmax_endBin])
+            FFTpeaks[directionIndex, tiltAngleIndex] = np.amax(FFT_dBV_smooth[argmax_startBin:argmax_endBin])
             print('{0:.1f}'.format(FFTpeaks[directionIndex, tiltAngleIndex]) + ' dBV', end = ', ')
             print(filename)
             IFI = False
