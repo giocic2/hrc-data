@@ -8,7 +8,7 @@ SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
-ZERO_FORCING = True # Enable forcing FFT to zero, between FREQUENCY_MIN and FREQUENCY_MAX
+ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
 FREQUENCY_MIN = 50 # Hz
 FREQUENCY_MAX = 1_000 # Hz
 
@@ -20,10 +20,10 @@ smoothingBins = int(round(SMOOTHING_WINDOW / (SAMPLING_FREQUENCY / freqBins_FFT)
 print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
 minBin = int(np.round(FREQUENCY_MIN / (SAMPLING_FREQUENCY/freqBins_FFT)))
 FREQUENCY_MIN = minBin * SAMPLING_FREQUENCY/freqBins_FFT
-print("Minimum frequency of interest: " + str(FREQUENCY_MIN) + ' Hz')
+print("Minimum frequency of interest: {:.1f} Hz".format(FREQUENCY_MIN))
 maxBin = int(np.round(FREQUENCY_MAX / (SAMPLING_FREQUENCY/freqBins_FFT)))
 FREQUENCY_MAX = maxBin * SAMPLING_FREQUENCY/freqBins_FFT
-print("Maximum frequency of interest: " + str(FREQUENCY_MAX) + ' Hz')
+print("Maximum frequency of interest: {:.1f} Hz".format(FREQUENCY_MAX))
 
 filename = None
 while filename == None:
@@ -92,12 +92,12 @@ while centroidDetected == False:
             centroidDetected = True
             break
 
-print('Center of Doppler centroid: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
-print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
-print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
+print('Amplitude of FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
+print('Bandwidth threshold (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD) + ' dB')
 print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
 print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
 print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
+print('Center of Doppler centroid: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
 
 # Plot FFT: normalized and smoothed
 plt.plot(freqAxis_Hz, FFT_norm_dB)
@@ -110,7 +110,7 @@ plt.grid(True)
 plt.show()
 
 # Spectrogram computation
-f, t, Sxx = signal.spectrogram(voltageAxis_mV, fs = SAMPLING_FREQUENCY, noverlap=128 ,nperseg = 1024, nfft = 2**14, scaling = 'spectrum')
+f, t, Sxx = signal.spectrogram(voltageAxis_mV, fs = SAMPLING_FREQUENCY, noverlap=128 ,nperseg = 1024, nfft = 2**14, scaling = 'spectrum', detrend='constant')
 plt.pcolormesh(t, f, Sxx, shading='gouraud')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
