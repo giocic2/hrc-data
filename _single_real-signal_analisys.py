@@ -114,5 +114,5 @@ f, t, Sxx = signal.spectrogram(voltageAxis_mV, fs = SAMPLING_FREQUENCY, noverlap
 plt.pcolormesh(t, f, Sxx, shading='gouraud')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
-plt.axis([0, 1, 0, 1000])
+plt.axis([0, 1, FREQUENCY_MIN, FREQUENCY_MAX])
 plt.show()
