@@ -8,9 +8,11 @@ from scipy.fft import fftshift
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
-FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 BANDWIDTH_THRESHOLD = 6 # dB
-ITERATIONS = 3
+ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
+FREQUENCY_MIN = -1_000 # Hz
+FREQUENCY_MAX = 1_000 # Hz
+ITERATIONS = 2
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -18,6 +20,12 @@ print('FFT resolution: ' + str(SAMPLING_FREQUENCY / freqBins_FFT) + ' Hz')
 print('FFT bins: ' + str(freqBins_FFT))
 smoothingBins = int(round(SMOOTHING_WINDOW / (SAMPLING_FREQUENCY / freqBins_FFT)))
 print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
+minBin = int(freqBins_FFT/2 + np.round(FREQUENCY_MIN / (SAMPLING_FREQUENCY/freqBins_FFT)))
+FREQUENCY_MIN = -SAMPLING_FREQUENCY/2 + minBin * SAMPLING_FREQUENCY/freqBins_FFT
+print("Minimum frequency of interest: {:.1f} Hz".format(FREQUENCY_MIN))
+maxBin = int(freqBins_FFT/2 + np.round(FREQUENCY_MAX / (SAMPLING_FREQUENCY/freqBins_FFT)))
+FREQUENCY_MAX = -SAMPLING_FREQUENCY/2 + maxBin * SAMPLING_FREQUENCY/freqBins_FFT
+print("Maximum frequency of interest: {:.1f} Hz".format(FREQUENCY_MAX))
 
 done = False
 index = 1
@@ -77,17 +85,19 @@ while not done:
                 centroidDetected = True
                 break
 
-    print('Detected Doppler frequency: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
     print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
-    print('Bandwidth threshold: {:.1f}'.format(BANDWIDTH_THRESHOLD) + ' dB')
+    print('Bandwidth threshold (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD) + ' dB')
     print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
     print('Bandwidth starts at {:.1f}'.format(startBand) + ' Hz')
     print('Bandwidth stops at {:.1f}'.format(stopBand) + ' Hz')
+    print('Center of Doppler centroid: {:.1f}'.format((stopBand + startBand)/2) + ' Hz')
 
     # Plot FFT: normalized and smoothed
     plt.plot(freqAxis_Hz, FFT_dBV)
     # plt.plot(freqAxis_Hz, FFT_norm_dB)
     # plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
+    if ZERO_FORCING == True:
+        plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
     plt.ylabel('Spectrum magnitude (dB)')
     plt.xlabel('Frequency (Hz)')
     plt.grid(True)
@@ -95,5 +105,5 @@ while not done:
     if index == ITERATIONS:
         done = True
     index += 1
-plt.legend(['1','2','3'])
+plt.legend(['1','2'])
 plt.show()
