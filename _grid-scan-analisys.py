@@ -12,7 +12,6 @@ HYPOTHESIS:
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
-FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 MAX_SCAN_ANGLE = np.deg2rad(15)
 TARGET_POSITION = np.array([0, 1.40]) # m,m [horiz., vert.]
 TARGET_FREQUENCY = 450 # Hz
