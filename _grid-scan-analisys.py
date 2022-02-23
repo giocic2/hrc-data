@@ -14,9 +14,12 @@ FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
 FREQUENCY_MIN = -50_000 # Hz (lower limit for doppler centroid estimation)
 MAX_SCAN_ANGLE = np.deg2rad(15)
-TARGET_FREQUENCY = 300 # Hz
-ARGMAX_RANGE =  100 # bins
-TARGET_POSITION = np.array([0, 1.50]) # m,m [horiz., vert.]
+TARGET_POSITION = np.array([0, 1.40]) # m,m [horiz., vert.]
+TARGET_FREQUENCY = 450 # Hz
+MAX_SEARCH_RANGE =  30 # Hz
+
+# PLOTS SETTINGS
+TEXT_ANNOTATION = False
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -24,6 +27,10 @@ print('FFT resolution: ' + str(SAMPLING_FREQUENCY / freqBins_FFT) + ' Hz')
 print('FFT bins: ' + str(freqBins_FFT))
 smoothingBins = int(round(SMOOTHING_WINDOW / (SAMPLING_FREQUENCY / freqBins_FFT)))
 print('Size of smoothing window (moving average): ' + str(smoothingBins) + ' bins')
+maxSearch_startBin = int(round((freqBins_FFT / SAMPLING_FREQUENCY * (TARGET_FREQUENCY - MAX_SEARCH_RANGE/2))))
+maxSearch_endBin = int(round((freqBins_FFT / SAMPLING_FREQUENCY * (TARGET_FREQUENCY + MAX_SEARCH_RANGE/2))))
+print('Target frequency expected: {:.1f} Hz'.format(TARGET_FREQUENCY))
+print('FFT peak searched between {:.1f} Hz and {:.1f} Hz'.format(maxSearch_startBin*SAMPLING_FREQUENCY/freqBins_FFT, maxSearch_endBin*SAMPLING_FREQUENCY/freqBins_FFT))
 
 tiltAngles = []
 directions = []
@@ -80,11 +87,6 @@ tiltAngleIndex = 0
 IFI = False
 IFQ = False
 
-TARGET_FREQUENCY = 5.7 / 2 * 28 # Hz
-ARGMAX_RANGE = 10 # bins
-argmax_startBin = int(round((freqBins_FFT / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) - ARGMAX_RANGE / 2))
-argmax_endBin = int(round((freqBins_FFT / (SAMPLING_FREQUENCY) * TARGET_FREQUENCY) + ARGMAX_RANGE / 2))
-
 for filename in filenames:
     if (str(directions[directionIndex]) in filename) and (str(tiltAngles[tiltAngleIndex]) in filename):
         if ('ChA' in filename):
@@ -116,7 +118,7 @@ for filename in filenames:
 #             plt.grid(True)
 #             plt.show()
             # FFTpeaks update
-            FFTpeaks[directionIndex, tiltAngleIndex] = np.amax(FFT_dBV_smooth[argmax_startBin:argmax_endBin])
+            FFTpeaks[directionIndex, tiltAngleIndex] = np.amax(FFT_dBV_smooth[maxSearch_startBin:maxSearch_endBin])
             print('{0:.1f}'.format(FFTpeaks[directionIndex, tiltAngleIndex]) + ' dBV', end = ', ')
             print(filename)
             IFI = False
@@ -157,10 +159,11 @@ plt.setp(axis2.get_xticklabels(), rotation=45, ha="right",
          rotation_mode="anchor")
 
 # Loop over data dimensions and create text annotations.
-for i in range(len(tiltAngles)):
-    for j in range(len(directions_DEG)):
-        text = axis2.text(j, i, np.around(FFTpeaks_rotated[i, j],decimals=1),
-                       ha="center", va="center", color="w")
+if TEXT_ANNOTATION == True:
+    for i in range(len(tiltAngles)):
+        for j in range(len(directions_DEG)):
+            text = axis2.text(j, i, np.around(FFTpeaks_rotated[i, j],decimals=1),
+                        ha="center", va="center", color="w")
 
 axis2.set_title("Magnitude of received signal @ target frequency [dBV]")
 figure.tight_layout()
