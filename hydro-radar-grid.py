@@ -3,12 +3,12 @@ from matplotlib import markers
 import matplotlib.pyplot as plt
 import numpy as np
 
-PIVOT_HEIGHT = 0.56 + 3.0 # m. Vertical distance between pivot and ground level.
+PIVOT_HEIGHT = 0.56 + 3.4 # m. Vertical distance between pivot and ground level.
 ANTENNA_CENTER_POSITION = 0.12 # m. Distance between pivot and center of RX antenna.
 MAX_SCAN_ANGLE = np.deg2rad(15) # rad
-INITIAL_TILT_ANGLE = np.deg2rad(10) # rad
-FINAL_TILT_ANGLE = np.deg2rad(40) # rad
-TILT_POSITIONS = 4
+INITIAL_TILT_ANGLE = np.deg2rad(23) # rad
+FINAL_TILT_ANGLE = np.deg2rad(43) # rad
+TILT_POSITIONS = 3
 SCANNING_DIRECTIONS = 5
 BEAMWIDTH_AZIMUTH = np.deg2rad(6) # rad
 BEAMWIDTH_ELEVATION = np.deg2rad(9) # rad

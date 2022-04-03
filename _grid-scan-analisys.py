@@ -13,9 +13,9 @@ SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
 MAX_SCAN_ANGLE = np.deg2rad(15)
-TARGET_POSITION = np.array([0, 1.40]) # m,m [horiz., vert.]
-TARGET_FREQUENCY = 460 # Hz
-MAX_SEARCH_RANGE =  60 # Hz
+TARGET_POSITION = np.array([0, 6.35]) # m,m [horiz., vert.]
+TARGET_FREQUENCY = 60 # Hz
+MAX_SEARCH_RANGE =  20 # Hz
 
 # PLOTS SETTINGS
 TEXT_ANNOTATION = False
@@ -42,7 +42,7 @@ directoryList = sorted(os.listdir(path='.'))
 for entry in directoryList:
     if entry.endswith('.csv'):
         filenames.append(entry) # Store filenames in list
-        # print(entry)
+        print(entry)
         angle_substring = re.search('__(.+?)deg__', entry)
         if angle_substring and (float(angle_substring.group(1)) not in tiltAngles):
             tiltAngles.append(float(angle_substring.group(1))) # Store tilt angles in list
