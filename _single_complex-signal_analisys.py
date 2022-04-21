@@ -7,11 +7,12 @@ from scipy.fft import fftshift
 # ANALYSIS SETTINGS
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
+ACQUISITION_TIME = 10 # s
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
 ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
-FREQUENCY_MIN = -1_000 # Hz
-FREQUENCY_MAX = 1_000 # Hz
+FREQUENCY_MIN = -5000 # Hz
+FREQUENCY_MAX = 5000 # Hz
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -66,8 +67,8 @@ freqAxis = np.fft.fftshift(np.fft.fftfreq(freqBins_FFT)) # freqBins+1
 freqAxis_Hz = freqAxis * SAMPLING_FREQUENCY
 # Plot FFT
 plt.plot(freqAxis_Hz, FFT_dBV)
-plt.ylabel('Spectrum magnitude (dBV)')
-plt.xlabel('Frequency (Hz)')
+plt.ylabel('spectrum magnitude (dBV)')
+plt.xlabel('frequency (Hz)')
 if ZERO_FORCING == True:
     plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
 plt.grid(True)
@@ -101,6 +102,7 @@ while centroidDetected == False:
             centroidDetected = True
             break
 
+print('Amplitude of FFT peak: {:.1f}'.format(np.amax(FFT_dBV)) + ' dBV')
 print('Amplitude of this FFT peak (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max) + ' dB')
 print('Bandwidth threshold (norm.smooth.): {:.1f}'.format(FFT_norm_dB_smooth_max - BANDWIDTH_THRESHOLD) + ' dB')
 print('Bandwidth: {:.1f}'.format(stopBand - startBand) + ' Hz')
@@ -111,17 +113,17 @@ print('Center of Doppler centroid: {:.1f}'.format((stopBand + startBand)/2) + ' 
 # Plot FFT: normalized and smoothed
 plt.plot(freqAxis_Hz, FFT_norm_dB)
 plt.plot(freqAxis_Hz, FFT_norm_dB_smooth)
-plt.ylabel('Spectrum magnitude (dB)')
-plt.xlabel('Frequency (Hz)')
+plt.ylabel('spectrum magnitude (dB)')
+plt.xlabel('frequency (Hz)')
 if ZERO_FORCING == True:
     plt.xlim(FREQUENCY_MIN, FREQUENCY_MAX)
 plt.grid(True)
 plt.show()
 
 # Spectrogram computation
-f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, noverlap=128, nperseg = 1024, nfft = 2**14, scaling = 'spectrum', return_onesided=False, detrend='constant')
+f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, noverlap=0, nperseg = 2048, nfft = 2**15, scaling = 'spectrum', return_onesided=False, detrend=False)
 plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.axis([0, 1, FREQUENCY_MIN, FREQUENCY_MAX])
+plt.ylabel('frequency (Hz)')
+plt.xlabel('time (s)')
+plt.axis([0, ACQUISITION_TIME, FREQUENCY_MIN, FREQUENCY_MAX])
 plt.show()

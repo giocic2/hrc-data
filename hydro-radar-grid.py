@@ -9,7 +9,7 @@ MAX_SCAN_ANGLE = np.deg2rad(15) # rad
 INITIAL_TILT_ANGLE = np.deg2rad(23) # rad
 FINAL_TILT_ANGLE = np.deg2rad(43) # rad
 TILT_POSITIONS = 3
-SCANNING_DIRECTIONS = 5
+SCANNING_DIRECTIONS = 3
 BEAMWIDTH_AZIMUTH = np.deg2rad(6) # rad
 BEAMWIDTH_ELEVATION = np.deg2rad(9) # rad
 
