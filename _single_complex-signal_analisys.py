@@ -11,8 +11,8 @@ ACQUISITION_TIME = 10 # s
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
 ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
-FREQUENCY_MIN = -5000 # Hz
-FREQUENCY_MAX = 5000 # Hz
+FREQUENCY_MIN = -5_000 # Hz
+FREQUENCY_MAX = 5_000 # Hz
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
