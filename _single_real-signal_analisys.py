@@ -5,12 +5,14 @@ from scipy import signal
 
 # ANALYSIS SETTINGS
 SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
-FFT_RESOL = 1 # Hz
+FFT_RESOL = 0.1 # Hz
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
 ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
 FREQUENCY_MIN = 0 # Hz
 FREQUENCY_MAX = 1_000 # Hz
+SPECTROGRAM = False
+OFFSET_COMPENSATION = False
 
 # FFT bins and resolution
 freqBins_FFT = int(2**np.ceil(np.log2(abs(SAMPLING_FREQUENCY/2/FFT_RESOL))))
@@ -33,6 +35,8 @@ print(filename)
 rawSamples = np.genfromtxt(filename, delimiter = ',')
 
 voltageAxis_mV = rawSamples[:,0]
+if OFFSET_COMPENSATION == True:
+    voltageAxis_mV = voltageAxis_mV - np.mean(voltageAxis_mV)
 timeAxis_s = rawSamples[:,1]
 totalSamples = timeAxis_s.size
 
@@ -109,10 +113,11 @@ if ZERO_FORCING == True:
 plt.grid(True)
 plt.show()
 
-# Spectrogram computation
-f, t, Sxx = signal.spectrogram(voltageAxis_mV, fs = SAMPLING_FREQUENCY, noverlap=128 ,nperseg = 1024, nfft = 2**14, scaling = 'spectrum', detrend='constant')
-plt.pcolormesh(t, f, Sxx, shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.axis([0, 1, FREQUENCY_MIN, FREQUENCY_MAX])
-plt.show()
+if SPECTROGRAM == True:
+    # Spectrogram computation
+    f, t, Sxx = signal.spectrogram(voltageAxis_mV, fs = SAMPLING_FREQUENCY, noverlap=128 ,nperseg = 1024, nfft = 2**14, scaling = 'spectrum', detrend='constant')
+    plt.pcolormesh(t, f, Sxx, shading='gouraud')
+    plt.ylabel('Frequency [Hz]')
+    plt.xlabel('Time [sec]')
+    plt.axis([0, 1, FREQUENCY_MIN, FREQUENCY_MAX])
+    plt.show()
