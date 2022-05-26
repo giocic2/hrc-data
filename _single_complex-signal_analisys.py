@@ -5,15 +5,15 @@ from scipy import signal
 from scipy.fft import fftshift
 
 # ANALYSIS SETTINGS
-SAMPLING_FREQUENCY = 100e3 # According to "hrc-ps.py" script
-FFT_RESOL = 0.1 # Hz
+SAMPLING_FREQUENCY = 1e3 # According to "hrc-ps.py" script
+FFT_RESOL = 1 # Hz
 ACQUISITION_TIME = 2 # s
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
 ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
-FREQUENCY_MIN = -1_000 # Hz
-FREQUENCY_MAX = 1_000 # Hz
-SPECTROGRAM = False
+FREQUENCY_MIN = -3_000 # Hz
+FREQUENCY_MAX = 3_000 # Hz
+SPECTROGRAM = True
 OFFSET_COMPENSATION = False
 
 # FFT bins and resolution
@@ -127,7 +127,7 @@ plt.show()
 
 # Spectrogram computation
 if SPECTROGRAM == True:
-    f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, noverlap=0, nperseg = 128, nfft = 2**15, scaling = 'spectrum', return_onesided=False, detrend=False)
+    f, t, Sxx = signal.spectrogram(complexSignal_mV, fs = SAMPLING_FREQUENCY, noverlap=0, nperseg = 128, nfft = 2**10, scaling = 'spectrum', return_onesided=False, detrend=False)
     plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
     plt.ylabel('frequency (Hz)')
     plt.xlabel('time (s)')
