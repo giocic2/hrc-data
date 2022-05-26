@@ -5,14 +5,14 @@ from scipy import signal
 from scipy.fft import fftshift
 
 # ANALYSIS SETTINGS
-SAMPLING_FREQUENCY = 1e3 # According to "hrc-ps.py" script
+SAMPLING_FREQUENCY = 2e3 # According to "hrc-ps.py" script
 FFT_RESOL = 1 # Hz
-ACQUISITION_TIME = 2 # s
+ACQUISITION_TIME = 10 # s
 SMOOTHING_WINDOW = 10 # Hz
 BANDWIDTH_THRESHOLD = 6 # dB
 ZERO_FORCING = True # Enable forcing FFT to zero, everywhere except between FREQUENCY_MIN and FREQUENCY_MAX
-FREQUENCY_MIN = -3_000 # Hz
-FREQUENCY_MAX = 3_000 # Hz
+FREQUENCY_MIN = -500 # Hz
+FREQUENCY_MAX = 500 # Hz
 SPECTROGRAM = True
 OFFSET_COMPENSATION = False
 
