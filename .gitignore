@@ -1,4 +1,4 @@
-./*.csv
+*.csv
 *.png
 .venv
 *_report.txt
